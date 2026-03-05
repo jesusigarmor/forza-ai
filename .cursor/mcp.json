@@ -1,0 +1,598 @@
+{
+  "mcpServers": {
+    "pr-workflow": {
+      "command": "node",
+      "args": [
+        ".cursor/mcp-servers/dc/pr-workflow.js"
+      ],
+      "serverUseInstructions": "PR workflow (18 tools). PR info: get_pull_request (metadata), get_pull_request_files (changed files), get_pr_by_branch (find PR by branch name). PR feedback: get_pr_feedback (all review threads + top-level comments + review bodies, auto-paginated; bodies in separate files via bodyFile), resolve_pr_comment (reply+resolve), reply_to_pr_comment (reply without resolving), create_pr_comment (top-level comment). CI: get_ci_status, get_ci_failure_logs (stdout/stderr from failed jobs). Code scanning: get_code_scanning_alerts (CodeQL alerts by PR or branch), dismiss_code_scanning_alert (dismiss with reason). PR creation: create_pr. Branch: check_branch_status, check_merge_conflicts, start_merge_from_main, complete_merge, abort_merge. NEVER use gh CLI directly - use these tools.",
+      "routing": {
+        "domain": "github",
+        "triggers": [
+          "PR",
+          "pull request",
+          "PR comment",
+          "review comment",
+          "resolve thread",
+          "CI status",
+          "CI failure",
+          "code scanning",
+          "CodeQL",
+          "security alerts",
+          "github"
+        ],
+        "preferOver": [
+          "Shell"
+        ],
+        "examples": [
+          "check the PR",
+          "get PR comments",
+          "get PR files",
+          "check CI status",
+          "get CI failure logs",
+          "check code scanning alerts"
+        ]
+      }
+    },
+    "codecov": {
+      "command": "node",
+      "args": [
+        ".cursor/mcp-servers/dc/codecov.js"
+      ],
+      "serverUseInstructions": "Coverage data from CI. Use get_pr_coverage(pull_id) FIRST for PR coverage - check gap_analysis.passing. run_tests_with_coverage for local testing. verify_local_coverage to compare local vs remote (requires base_commit from get_pr_coverage).",
+      "routing": {
+        "domain": "coverage",
+        "triggers": [
+          "coverage",
+          "codecov",
+          "test coverage",
+          "patch coverage"
+        ],
+        "examples": [
+          "check coverage for this PR",
+          "what's the patch coverage"
+        ]
+      }
+    },
+    "qstash": {
+      "command": "node",
+      "args": [
+        ".cursor/mcp-servers/dc/qstash.js"
+      ],
+      "serverUseInstructions": "QStash/Workflow operations using QSTASH_TOKEN (works with Vercel-integrated accounts). Query workflow runs, get detailed message logs, manage DLQ (dead letter queue), cancel/resume/restart workflows. Use for debugging workflow failures, viewing execution history, and managing failed jobs. Key tools: list_workflow_runs (see recent runs), get_message_logs (detailed step-by-step logs), list_dlq (failed workflows), resume_workflow/restart_workflow (retry failures).",
+      "routing": {
+        "domain": "qstash",
+        "triggers": [
+          "qstash",
+          "workflow runs",
+          "workflow logs",
+          "dlq",
+          "dead letter queue",
+          "failed workflow"
+        ],
+        "examples": [
+          "show me the last 10 workflow runs",
+          "what's in the DLQ",
+          "get logs for workflow wfr_xxx",
+          "resume failed workflow"
+        ]
+      }
+    },
+    "dash0": {
+      "command": ".cursor/mcp-servers/dc/load-env.sh",
+      "args": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://api.us-west-2.aws.dash0.com/mcp",
+        "--header",
+        "Authorization:Bearer ${DASH0_API_KEY}",
+        "--ignore-tool",
+        "getAttributeKeys",
+        "--ignore-tool",
+        "getAttributeValues",
+        "--ignore-tool",
+        "getFailedCheckDetails",
+        "--ignore-tool",
+        "getFailedChecks",
+        "--ignore-tool",
+        "getK8sPods",
+        "--ignore-tool",
+        "getLogCorrelations",
+        "--ignore-tool",
+        "getMetricCatalog",
+        "--ignore-tool",
+        "getMetricDetails",
+        "--ignore-tool",
+        "getMetricQuery",
+        "--ignore-tool",
+        "getSpanCorrelations",
+        "--ignore-tool",
+        "getSyntheticChecks",
+        "--ignore-tool",
+        "getWebEvents",
+        "--ignore-tool",
+        "listDashboards",
+        "--ignore-tool",
+        "listDatasets",
+        "--ignore-tool",
+        "listWebsites",
+        "--ignore-tool",
+        "promql",
+        "--ignore-tool",
+        "searchKnowledgeBase"
+      ],
+      "serverUseInstructions": "READ-ONLY observability for debugging (6 tools). No admin, no writes. Service names: prod=distro, stage=distro-stage. For quote logs: filter distro.invocation_id contains 'quote-<quoteId>'. For invoice logs: filter distro.invocation_id contains 'invoice-<reconciliationId>'. Key attrs: distro.invocation_id, otel.log.body, trace_id.",
+      "routing": {
+        "domain": "observability",
+        "triggers": [
+          "logs",
+          "traces",
+          "production logs",
+          "debug production",
+          "observability"
+        ],
+        "examples": [
+          "check production logs",
+          "find error traces",
+          "debug production issue"
+        ]
+      }
+    },
+    "mongodb": {
+      "command": ".cursor/mcp-servers/dc/load-env.sh",
+      "args": [
+        "sh",
+        "-c",
+        "MDB_MCP_API_CLIENT_ID=$MDB_MCP_API_CLIENT_ID MDB_MCP_API_CLIENT_SECRET=$MDB_MCP_API_CLIENT_SECRET exec npx -y mongodb-mcp-server@latest --readOnly --disabledTools atlas-create-access-list,atlas-create-db-user,atlas-create-free-cluster,atlas-create-project,atlas-list-db-users,atlas-list-orgs,atlas-local-connect-deployment,atlas-local-create-deployment,atlas-local-delete-deployment,atlas-local-list-deployments,list-knowledge-sources,search-knowledge"
+      ],
+      "serverUseInstructions": "READ-ONLY database queries across ALL clusters (prod, test, dev). Before querying, MUST call atlas-connect-cluster with projectId '637189240609b04bd292d347' and the cluster name for the target environment. The dev cluster serves dev, stage, and preview environments (same database). Can switch clusters by calling atlas-connect-cluster again. ALWAYS specify database:'distro'. ObjectId format: {\"$oid\":\"...\"}. Collections: quote, enterprise, private_product, erp_connection, customer, platform_user, invoice, invoicereconciliation, knowledge_chatbot_conversation, customer_chat_conversation, customer_chat_message, intake_source, order, purchase_order, data_ingest_job, erp_submission, asyncjobstatuses, vendor (snake_case singular). Cluster names: prod, test, dev.",
+      "routing": {
+        "domain": "database",
+        "triggers": [
+          "database",
+          "mongodb",
+          "query",
+          "find documents",
+          "check entity"
+        ],
+        "examples": [
+          "find the quote in database",
+          "check user state",
+          "query the database"
+        ]
+      }
+    },
+    "perplexity": {
+      "command": ".cursor/mcp-servers/dc/load-env.sh",
+      "args": [
+        "npx",
+        "-y",
+        "@perplexity-ai/mcp-server"
+      ],
+      "serverUseInstructions": "Web search for real-time info. perplexity_ask for quick answers (messages array format). perplexity_research for deep multi-source research. Include year (2026) in queries. Use BEFORE relying on training data for best practices, APIs, or troubleshooting.",
+      "routing": {
+        "domain": "research",
+        "priority": 10,
+        "triggers": [
+          "search",
+          "research",
+          "find out",
+          "what is",
+          "how to",
+          "latest",
+          "best practices"
+        ],
+        "preferOver": [
+          "WebSearch"
+        ],
+        "examples": [
+          "search for best practices",
+          "what is the latest React version",
+          "research this topic"
+        ]
+      }
+    },
+    "tavily-remote-mcp": {
+      "command": ".cursor/mcp-servers/dc/load-env.sh",
+      "args": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://mcp.tavily.com/mcp/",
+        "--header",
+        "Authorization:Bearer ${TAVILY_API_KEY}"
+      ],
+      "serverUseInstructions": "Web search alternative to Perplexity. tavily_search for general queries, tavily_research for comprehensive research. Run in parallel with Perplexity for cross-validation.",
+      "routing": {
+        "domain": "research",
+        "priority": 8,
+        "triggers": [
+          "search",
+          "research",
+          "web search"
+        ],
+        "preferOver": [
+          "WebSearch"
+        ],
+        "examples": [
+          "search the web",
+          "research this topic"
+        ]
+      }
+    },
+    "firecrawl-mcp": {
+      "command": ".cursor/mcp-servers/dc/load-env.sh",
+      "args": [
+        "npx",
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "serverUseInstructions": "Scrape/read specific URLs (6 tools). Use when user shares a URL and you need to read its content. Core: firecrawl_scrape, firecrawl_map, firecrawl_crawl, firecrawl_search, firecrawl_extract, firecrawl_check_crawl_status. firecrawl_deep_research and firecrawl_generate_llmstxt are disabled. Use Perplexity for deep research instead.",
+      "routing": {
+        "domain": "web-scraping",
+        "triggers": [
+          "scrape",
+          "crawl",
+          "read URL",
+          "fetch page"
+        ],
+        "examples": [
+          "scrape this URL",
+          "read the content of this page"
+        ]
+      }
+    },
+    "vercel": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.vercel.com",
+        "--ignore-tool",
+        "search_vercel_documentation",
+        "--ignore-tool",
+        "deploy_to_vercel",
+        "--ignore-tool",
+        "get_access_to_vercel_url",
+        "--ignore-tool",
+        "web_fetch_vercel_url",
+        "--ignore-tool",
+        "check_domain_availability_and_price"
+      ],
+      "serverUseInstructions": "READ-ONLY deployment observability (6 tools). No deploy, no admin. Check deployment status, get build logs, get runtime logs for debugging. list_teams for teamId.",
+      "routing": {
+        "domain": "deployment",
+        "triggers": [
+          "vercel logs",
+          "build logs",
+          "runtime logs",
+          "deployment status"
+        ],
+        "examples": [
+          "check build logs",
+          "get runtime logs",
+          "why did the build fail"
+        ]
+      }
+    },
+    "context7": {
+      "command": ".cursor/mcp-servers/dc/load-env.sh",
+      "args": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "serverUseInstructions": "External library docs. Use when writing code with React, Next.js, LangChain, MongoDB driver, or any rapidly-evolving library. Invoke when referencing library APIs that may have changed since training cutoff.",
+      "routing": {
+        "domain": "documentation",
+        "triggers": [
+          "docs",
+          "documentation",
+          "API reference",
+          "library docs",
+          "how to use"
+        ],
+        "preferOver": [
+          "WebSearch"
+        ],
+        "examples": [
+          "get React docs",
+          "how to use this library"
+        ]
+      }
+    },
+    "exa": {
+      "command": ".cursor/mcp-servers/dc/load-env.sh",
+      "args": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://mcp.exa.ai/mcp?tools=web_search_exa,web_search_advanced_exa,get_code_context_exa,deep_search_exa,crawling_exa,deep_researcher_start,deep_researcher_check",
+        "--header",
+        "x-api-key:${EXA_API_KEY}"
+      ],
+      "serverUseInstructions": "Advanced web search. web_search_exa for general search, get_code_context_exa for code examples from GitHub/SO, deep_search_exa for multi-angle research, crawling_exa to read URLs. deep_researcher_start/check for async AI research agent.",
+      "routing": {
+        "domain": "research",
+        "priority": 6,
+        "triggers": [
+          "search",
+          "code examples",
+          "research",
+          "deep search"
+        ],
+        "preferOver": [
+          "WebSearch"
+        ],
+        "examples": [
+          "find code examples",
+          "deep research on this topic"
+        ]
+      }
+    },
+    "sentry": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.sentry.dev/mcp",
+        "--ignore-tool",
+        "whoami",
+        "--ignore-tool",
+        "find_teams",
+        "--ignore-tool",
+        "find_releases",
+        "--ignore-tool",
+        "get_issue_tag_values",
+        "--ignore-tool",
+        "get_trace_details",
+        "--ignore-tool",
+        "search_docs",
+        "--ignore-tool",
+        "get_doc",
+        "--ignore-tool",
+        "list_issues",
+        "--ignore-tool",
+        "list_events",
+        "--ignore-tool",
+        "list_issue_events",
+        "--ignore-tool",
+        "get_profile",
+        "--ignore-tool",
+        "update_issue",
+        "--ignore-tool",
+        "create_team",
+        "--ignore-tool",
+        "create_project",
+        "--ignore-tool",
+        "update_project",
+        "--ignore-tool",
+        "create_dsn",
+        "--ignore-tool",
+        "find_dsns",
+        "--ignore-tool",
+        "get_event_attachment"
+      ],
+      "serverUseInstructions": "READ-ONLY error debugging (4 tools): find_organizations, find_projects, get_issue_details (stack traces), analyze_issue_with_seer (AI root cause).",
+      "routing": {
+        "domain": "errors",
+        "triggers": [
+          "error",
+          "sentry",
+          "stack trace",
+          "exception",
+          "crash"
+        ],
+        "examples": [
+          "check Sentry errors",
+          "find the stack trace for this error"
+        ]
+      }
+    },
+    "next-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "next-devtools-mcp"
+      ],
+      "serverUseInstructions": "Next.js dev server interaction (5 tools). nextjs_index to discover servers, nextjs_call with port + toolName (get_errors, get_routes, etc), nextjs_docs, browser_eval, init. enable_cache_components and upgrade_nextjs_16 are disabled.",
+      "routing": {
+        "domain": "development",
+        "triggers": [
+          "next.js",
+          "dev server",
+          "routes",
+          "server errors"
+        ],
+        "examples": [
+          "check Next.js dev server errors",
+          "list routes"
+        ]
+      }
+    },
+    "notion": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.notion.com/mcp",
+        "--ignore-tool",
+        "notion-move-pages",
+        "--ignore-tool",
+        "notion-duplicate-page",
+        "--ignore-tool",
+        "notion-create-database",
+        "--ignore-tool",
+        "notion-update-data-source",
+        "--ignore-tool",
+        "notion-create-comment",
+        "--ignore-tool",
+        "notion-get-comments",
+        "--ignore-tool",
+        "notion-get-teams",
+        "--ignore-tool",
+        "notion-query-database-view"
+      ],
+      "serverUseInstructions": "Knowledge retrieval + docs (5 tools). No admin. GET: notion-search, notion-fetch, notion-get-users. WRITE: notion-create-pages, notion-update-page. Primary source for ERP/API docs. Workflow: search → fetch → read embedded PDFs.",
+      "routing": {
+        "domain": "documentation",
+        "triggers": [
+          "notion",
+          "ERP docs",
+          "API documentation",
+          "meeting notes"
+        ],
+        "examples": [
+          "search Notion for ERP docs",
+          "find the meeting notes"
+        ]
+      }
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide",
+        "--project-from-cwd",
+        "--enable-web-dashboard",
+        "false",
+        "--open-web-dashboard",
+        "false"
+      ],
+      "serverUseInstructions": "LSP-powered codebase intelligence (20k+ stars). PREFER over Grep/Read/SemanticSearch for code navigation. Context 'ide' disables file/shell tools that duplicate the IDE's built-ins. Key tools: find_symbol (locate functions/classes/vars by name), find_referencing_symbols (find all callers/usages of a symbol), get_workspace_symbols (search symbols by partial name across the repo), get_document_symbols (list all symbols in a file), get_definition (go-to-definition), get_references (find all references), get_hover_info (type info + docs for a symbol), insert_after_symbol/replace_symbol_body (structural edits at the symbol level). On first use, call initial_instructions to initialize. Use find_symbol FIRST when you know the name. Use get_workspace_symbols for partial/fuzzy name search. Falls back gracefully — if Serena can't find it, use Grep.",
+      "routing": {
+        "domain": "code-intelligence",
+        "priority": 15,
+        "triggers": [
+          "find symbol",
+          "find function",
+          "find class",
+          "where is",
+          "who calls",
+          "references to",
+          "go to definition",
+          "refactor",
+          "rename"
+        ],
+        "preferOver": [
+          "Grep",
+          "Read",
+          "SemanticSearch"
+        ],
+        "examples": [
+          "find the UserService class",
+          "who calls this function",
+          "find all references to createQuote",
+          "what symbols are in this file",
+          "go to definition of McpSubagent"
+        ]
+      }
+    },
+    "pylon": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.usepylon.com/"
+      ],
+      "serverUseInstructions": "Pylon B2B customer support platform. Query customer issues, accounts, and conversations across Slack, email, and chat channels. Use for checking customer tickets, support metrics, and account health.",
+      "routing": {
+        "domain": "customer-support",
+        "triggers": [
+          "pylon",
+          "customer support",
+          "customer issue",
+          "support ticket",
+          "customer account"
+        ],
+        "examples": [
+          "check pylon for customer issues",
+          "what support tickets are open",
+          "look up customer account in pylon"
+        ]
+      }
+    },
+    "linear": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.linear.app/mcp"
+      ],
+      "serverUseInstructions": "Linear project management. Use for creating issues, updating tickets, listing issues, managing labels and milestones.",
+      "routing": {
+        "domain": "project-management",
+        "triggers": [
+          "ticket",
+          "linear",
+          "issue",
+          "create ticket"
+        ],
+        "examples": [
+          "create a Linear ticket",
+          "get issue by ID"
+        ]
+      }
+    },
+    "github": {
+      "command": ".cursor/mcp-servers/dc/load-env.sh",
+      "args": [
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://api.githubcopilot.com/mcp/",
+        "--header",
+        "Authorization:Bearer ${GITHUB_PAT_DISTRO_ORG_READ_ONLY}",
+        "--header",
+        "X-MCP-Toolsets:actions,repos,context",
+        "--header",
+        "X-MCP-Readonly:true",
+        "--ignore-tool",
+        "actions_run_trigger",
+        "--ignore-tool",
+        "create_branch",
+        "--ignore-tool",
+        "create_or_update_file",
+        "--ignore-tool",
+        "create_repository",
+        "--ignore-tool",
+        "delete_file",
+        "--ignore-tool",
+        "fork_repository",
+        "--ignore-tool",
+        "push_files"
+      ],
+      "serverUseInstructions": "READ-ONLY official GitHub MCP for Actions, Repos, and Context (17 tools). Context: get_me (authenticated user profile), get_teams (teams for a user), get_team_members (members of a team). Actions: actions_get (workflow/run/job details), actions_list (list workflows/runs/jobs), get_job_logs (job log output with tail/failed-only). Repos: get_file_contents, get_commit, list_commits, list_branches, list_tags, list_releases, get_latest_release, get_release_by_tag, get_tag, search_code, search_repositories. No write operations. Do NOT use for PR operations — use pr-workflow. Do NOT use for issues — use Linear.",
+      "routing": {
+        "domain": "github-platform",
+        "triggers": [
+          "GitHub Actions",
+          "workflow runs",
+          "job logs",
+          "list commits",
+          "search code",
+          "list branches",
+          "get file contents",
+          "list releases",
+          "who am I",
+          "GitHub user",
+          "GitHub team",
+          "team members"
+        ],
+        "examples": [
+          "check the GitHub Actions runs",
+          "get job logs for the failed workflow",
+          "search code across the repo",
+          "list recent commits",
+          "who am I on GitHub",
+          "who is on the team"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,248 @@
+---
+description: "Browser automation for localhost testing. Trigger: user says 'test in browser', 'automate browser', 'verify UI', or wants to test frontend changes visually."
+alwaysApply: false
+universal: true
+---
+
+# Browser Automation Workflow
+
+## AGENT ACTION: When to Proactively Offer
+
+**After completing work that can be tested through the browser, ASK the user:**
+
+> "Would you like me to run an end-to-end browser test to verify this works? I can open a browser with your session state (admin mode, impersonation) and test the flow."
+
+**Proactively offer for:**
+- Frontend components, pages, or UI changes
+- Backend API changes that the UI calls (product matching, quote building, etc.)
+- Bug fixes that affect user-visible behavior
+- Any feature that has a UI entry point
+- When user says "done", "does this work?", or "can you test this?"
+
+**Do NOT offer for:**
+- CI/CD pipeline changes (GitHub Actions, workflows)
+- ETL jobs, batch jobs, data migrations
+- Scripts in `scripts/` directory
+- Database index changes
+- Infrastructure/config-only changes
+- Unit test changes (unless testing the tested code in browser makes sense)
+- When user explicitly declines
+
+---
+
+## Overview
+
+Browser automation uses **cursor-browser-extension** MCP. This opens a Chrome window and lets the agent interact with web pages.
+
+**LOCALHOST ONLY:** This workflow only works on `localhost:3000` with `ENV_NAME=dev`. The dev-browser-automation-auth endpoint returns 404 on any deployed environment.
+
+**Session Isolation:** The browser automation uses an ISOLATED browser context with separate cookies. It does NOT clobber your existing Chrome session at localhost:3000. You can have your real session in one Chrome window and the automation session in another simultaneously.
+
+---
+
+## Authentication Steps (localhost only)
+
+This mirrors the current Cursor user's session state (admin mode, impersonation) into the automation browser.
+
+### Step 1: Get User's Distro Email from Cursor
+
+**macOS:**
+```bash
+sqlite3 "$HOME/Library/Application Support/Cursor/User/globalStorage/state.vscdb" "SELECT value FROM ItemTable WHERE key='cursorAuth/cachedEmail'"
+```
+
+**Linux:**
+```bash
+sqlite3 "$HOME/.config/Cursor/User/globalStorage/state.vscdb" "SELECT value FROM ItemTable WHERE key='cursorAuth/cachedEmail'"
+```
+
+**Windows (PowerShell):**
+```powershell
+sqlite3 "$env:APPDATA\Cursor\User\globalStorage\state.vscdb" "SELECT value FROM ItemTable WHERE key='cursorAuth/cachedEmail'"
+```
+
+This returns the email directly (e.g., `user@distro.app`).
+
+### Step 2: Get User's PlatformUser ID and Session State from MongoDB
+
+Use MCP server `mongodb`:
+
+```
+CallMcpTool:
+  server: "mongodb"
+  toolName: "find"
+  arguments:
+    database: "distro"
+    collection: "platform_user"
+    filter: { "email": "<EMAIL_FROM_STEP_1>" }
+    projection: { "_id": 1 }
+```
+
+**IMPORTANT:** Save the `_id.$oid` value - this is the `platformUserId` you'll pass to the auth endpoint. This ObjectId cannot be guessed, ensuring only the actual developer can authenticate.
+
+**Requirements:** The developer must:
+- Belong to the Distro enterprise (`isDistro: true`)
+- Have either "Distro Admin" or "Distro Owner" role
+- Not have `accessRevoked: true`
+
+Then get their workspace_settings using the `_id.$oid` value:
+
+```
+CallMcpTool:
+  server: "mongodb"
+  toolName: "find"
+  arguments:
+    database: "distro"
+    collection: "workspace_settings"
+    filter: { "platformUser": { "$oid": "<PLATFORM_USER_ID>" } }
+```
+
+Extract from workspace_settings:
+| Field | URL Param | Default if missing |
+|-------|-----------|-------------------|
+| `isDistroAdminMode` | `adminMode` | `false` |
+| `isImpersonating` | `impersonate` | `false` |
+| `lastImpersonatedEnterprise.$oid` | `enterpriseId` | omit param |
+
+**Note:** Only include `enterpriseId` if `isImpersonating` is `true`.
+
+### Step 3: Get the Token
+
+```bash
+grep DEV_BROWSER_AUTOMATION_TOKEN .env.dev
+```
+
+Returns: `DEV_BROWSER_AUTOMATION_TOKEN="<value>"` - extract the value between quotes.
+
+### Step 4: Navigate with Auth
+
+```
+CallMcpTool:
+  server: "cursor-browser-extension"
+  toolName: "browser_navigate"
+  arguments:
+    url: "http://localhost:3000/api/auth/dev-browser-automation-auth?token=<TOKEN>&platformUserId=<PLATFORM_USER_ID>&adminMode=<true|false>&impersonate=<true|false>&enterpriseId=<ENTERPRISE_ID>&redirect=/pending-quotes"
+```
+
+**If not impersonating:** Omit `impersonate` and `enterpriseId` params entirely:
+```
+url: "http://localhost:3000/api/auth/dev-browser-automation-auth?token=<TOKEN>&platformUserId=<PLATFORM_USER_ID>&adminMode=<true|false>&redirect=/pending-quotes"
+```
+
+### Step 5: Verify Auth Succeeded
+
+```
+CallMcpTool:
+  server: "cursor-browser-extension"
+  toolName: "browser_take_screenshot"
+  arguments: {}
+```
+
+**Expected state after auth:**
+- If `adminMode=true`: Admin mode toggle is ON, DISTRO ADMIN sidebar section visible
+- If `impersonate=true`: "Impersonating [Enterprise Name]" banner at top, Impersonate toggle ON
+- User shown as "[firstName] (Automation)" (e.g., "alex (Automation)")
+
+## Available Tools
+
+| Tool | Purpose |
+|------|---------|
+| `browser_navigate` | Go to a URL |
+| `browser_navigate_back` | Go back |
+| `browser_snapshot` | Get page structure with element refs |
+| `browser_click` | Click element by ref |
+| `browser_type` | Type text into element |
+| `browser_fill_form` | Fill multiple form fields |
+| `browser_select_option` | Select dropdown option |
+| `browser_press_key` | Press keyboard key |
+| `browser_hover` | Hover over element |
+| `browser_drag` | Drag and drop |
+| `browser_wait_for` | Wait for element/condition |
+| `browser_take_screenshot` | Capture screenshot |
+| `browser_tabs` | List/manage tabs |
+| `browser_console_messages` | Check for JS errors |
+| `browser_network_requests` | Check API calls |
+| `browser_resize` | Change viewport size |
+| `browser_evaluate` | Run JavaScript |
+| `browser_handle_dialog` | Handle alerts/confirms/prompts |
+
+## Workflow Rules
+
+### Snapshot Before Every Interaction
+```
+browser_snapshot
+browser_click element: "Submit button" ref: "e123"
+```
+
+Both `element` (description) and `ref` (from snapshot) are required. Element refs change after every page update - always re-snapshot.
+
+### Wait Strategy
+Short waits with snapshot checks, not one long wait:
+```
+browser_snapshot              # Check if ready
+browser_wait_for text: "Loading..." textGone: true
+browser_snapshot              # Check again
+```
+
+---
+
+## Starting Fresh for Visual Verification
+
+When capturing Loom videos or screenshots for PRs, **always start with a clean browser window**:
+
+### Close Existing Automation Window
+
+```typescript
+CallMcpTool({
+  server: "cursor-browser-extension",
+  toolName: "browser_tabs",
+  arguments: { action: "close" }
+})
+```
+
+### Open Fresh Window
+
+```typescript
+CallMcpTool({
+  server: "cursor-browser-extension",
+  toolName: "browser_navigate",
+  arguments: { url: "<full-auth-url-with-redirect>" }
+})
+```
+
+### Reset Browser State
+
+After navigation, reset zoom and verify clean state:
+
+```applescript
+-- Reset zoom to 100%
+tell application "System Events"
+    keystroke "0" using {command down}
+end tell
+```
+
+**Why fresh window?**
+- Previous automation may have left window in weird state (zoomed, scrolled, resized)
+- Clean window ensures consistent recording
+- Avoids "fucked up" appearance in visual verification
+
+---
+
+## Integration with Loom Recording
+
+
+
+When recording:
+1. **Close existing automation windows** - start fresh
+2. **Identify correct Chrome window** - by URL containing `localhost:3000`
+3. **Reset zoom to 100%** - before recording starts
+4. **Maximize window** - but NOT fullscreen
+5. **Stay on target window** - don't navigate away during recording
+
+---
+
+## Prohibited
+
+- **playwright MCP** - Broken in Cursor, tools don't execute
+- **cursor-ide-browser** - Broken in Cursor 2.3.18+
+- **Using stale browser windows** - Always close and open fresh for visual verification

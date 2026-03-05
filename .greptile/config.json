@@ -1,0 +1,115 @@
+{
+  "strictness": 3,
+  "commentTypes": ["logic", "syntax"],
+  "triggerOnUpdates": true,
+  "statusCheck": true,
+  "statusCommentsEnabled": false,
+  "fixWithAI": true,
+  "shouldUpdateDescription": true,
+  "updateExistingSummaryComment": true,
+  "updateSummaryOnly": false,
+  "hideFooter": true,
+  "fileChangeLimit": 400,
+  "excludeAuthors": ["dependabot[bot]", "renovate[bot]", "github-actions[bot]"],
+  "ignorePatterns": "dist/**\nnode_modules/**\n.next/**\n*.generated.*\n*.min.js\n*.min.css\n**/__snapshots__/**\ncoverage/**\nyarn.lock\npackage-lock.json\npnpm-lock.yaml",
+  "summarySection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": true
+  },
+  "issuesTableSection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": true
+  },
+  "confidenceScoreSection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": true
+  },
+  "sequenceDiagramSection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": false
+  },
+  "instructions": "Review for logic errors, security vulnerabilities, and violations of the structured rules below. Focus on issues a linter cannot catch — architectural mistakes, missing error handling, incorrect async patterns, and type safety gaps. Do NOT suggest ESLint or Prettier — this project uses oxlint and oxfmt.",
+  "rules": [
+    {
+      "id": "no-type-assertions",
+      "rule": "NEVER use 'as' to cast types. Type assertions mask real type errors. Use type guards, generic return types, or fix the type definition. Allowed: 'as const' for narrowing, and third-party library boundaries with a comment explaining why."
+    },
+    {
+      "id": "no-explicit-any",
+      "rule": "NEVER use the 'any' type. Use 'unknown' with type guards, generic constraints, or fix the type definition."
+    },
+    {
+      "id": "no-string-type-discrimination",
+      "rule": "NEVER use string parsing (.includes(), .toLowerCase(), regex) to determine types, statuses, or routing. Use typed const objects ('as const' maps) validated at the boundary with Zod schemas."
+    },
+    {
+      "id": "no-eslint-disable",
+      "rule": "NEVER use eslint-disable comments. This project uses oxlint, not ESLint. Use 'oxlint-disable-next-line' with an explanation when a targeted disable is needed."
+    },
+    {
+      "id": "no-floating-promises",
+      "rule": "Every Promise must be awaited, returned, or explicitly voided. Unhandled promise rejections crash the process."
+    },
+    {
+      "id": "no-sequential-await-loops",
+      "rule": "Do not use sequential await inside loops (for, for...of, while, .forEach). Use Promise.all() or Promise.allSettled() to parallelize independent async operations."
+    },
+    {
+      "id": "prefer-functional",
+      "rule": "Use .map(), .filter(), .reduce() over imperative for/for...of loops when transforming data. Imperative loops are acceptable only when early-exit (break/return) is needed."
+    },
+    {
+      "id": "no-param-reassign",
+      "rule": "NEVER reassign function parameters. Create a new variable instead."
+    },
+    {
+      "id": "strict-boolean-expressions",
+      "rule": "Boolean expressions must be strictly boolean. Do not rely on truthy/falsy coercion (e.g., 'if (str)' for strings, 'if (arr.length)' for arrays). Use explicit comparisons: 'str.length > 0', 'arr.length > 0', 'val !== null', 'val !== undefined'."
+    },
+    {
+      "id": "max-file-length",
+      "rule": "TypeScript files must not exceed 1000 lines. If a file approaches this limit, split by responsibility.",
+      "scope": ["**/*.ts", "**/*.tsx"]
+    },
+    {
+      "id": "no-re-exports",
+      "rule": "Do not re-export from files. Import from the source module directly. Barrel files (index.ts re-exports) are prohibited."
+    },
+    {
+      "id": "prefer-nullish-coalescing",
+      "rule": "Use ?? (nullish coalescing) instead of || for default values. The || operator coerces falsy values (0, '', false) which causes subtle bugs."
+    },
+    {
+      "id": "no-nested-ternary",
+      "rule": "Do not nest ternary expressions. Use if/else or early returns for readability."
+    },
+    {
+      "id": "switch-exhaustiveness",
+      "rule": "Switch statements on discriminated unions must be exhaustive. Add a default case that calls a never-returning function or handles all variants explicitly."
+    },
+    {
+      "id": "no-dead-code",
+      "rule": "Delete dead code immediately. No commented-out code (git has history), no _unusedVar prefixes (remove the variable entirely), no @deprecated annotations for same-branch code."
+    },
+    {
+      "id": "curly-braces-required",
+      "rule": "All if/else/for/while blocks must use curly braces, even for single-line bodies."
+    },
+    {
+      "id": "no-eval",
+      "rule": "NEVER use eval(), new Function(), or setTimeout/setInterval with string arguments. These are code injection vectors."
+    },
+    {
+      "id": "no-hardcoded-secrets",
+      "rule": "NEVER hardcode secrets, API keys, tokens, or passwords in source code. Use environment variables or a secrets manager."
+    },
+    {
+      "id": "validate-external-input",
+      "rule": "Validate all external inputs (API request bodies, query params, webhook payloads) with Zod schemas at the boundary before processing."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0a0a0a;
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-surface-hover: rgba(255, 255, 255, 0.03);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  --color-accent: #fc4c02;
+  --color-accent-hover: #e04400;
+  --color-accent-glow: rgba(252, 76, 2, 0.15);
+  --color-run: #10b981;
+  --color-bike: #f59e0b;
+  --color-swim: #0ea5e9;
+  --color-rest: #52525b;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.animate-pulse-dot-1 {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+.animate-pulse-dot-2 {
+  animation: pulse-dot 1.4s ease-in-out 0.2s infinite;
+}
+.animate-pulse-dot-3 {
+  animation: pulse-dot 1.4s ease-in-out 0.4s infinite;
+}

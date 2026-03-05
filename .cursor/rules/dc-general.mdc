@@ -1,0 +1,247 @@
+---
+description: Universal workspace guidelines that apply to all files
+alwaysApply: true
+universal: true
+---
+
+# General Development Guidelines
+
+**Use relative paths for all file edits.**
+
+## Code Quality
+
+- Fix all lint/type errors before completing work
+- Prefer explicit TypeScript types over `any`
+- Parallelize with `Promise.all()` - avoid sequential `await` loops
+- Use `.map()`, `.filter()`, `.reduce()` over `for` loops
+- Delete dead code immediately
+- **No inline code in strings**
+- **No `as` type assertions**
+- **Max 1000 lines per TypeScript file** - if a file hits 1000 lines, it needs refactoring. Split by responsibility.
+
+## No Type Assertions (`as`)
+
+**NEVER use `as` to cast types.** Type assertions mask real type errors instead of fixing them.
+
+**Allowed exceptions:** `as const` (narrowing), third-party library boundaries with a comment explaining WHY.
+
+**If TypeScript cannot prove the type:** use a type guard, generic return type, or fix the type definition.
+
+## Zero Cruft on Same Branch
+
+**If code was introduced on the CURRENT branch (not on `main`), there is ZERO tolerance for cruft. Delete it, do not bandage it.**
+
+- **NO** `_unusedVar` underscore prefixes - remove entirely, fix all callers
+- **NO** `@deprecated` annotations - delete outright
+- **NO** backward compat shims - no consumers to protect
+- **NO** commented-out code - git has history
+- **NO** unused imports, parameters, or stubs - delete them
+
+Check with: `git log --oneline main..HEAD -- <file>` (commits = same-branch = delete it)
+
+### Pre-Existing Issues — ZERO TOLERANCE
+
+**If you touch a file and find ANY issue — lint error, type error, bug, code smell, dead code — fix it. Period.**
+
+This is not optional. This is not "out of scope." This is not "pre-existing so not my problem."
+
+- **Lint errors block commits.** Pre-existing lint errors in a file you touched WILL block YOUR commit. Fix them or you cannot ship.
+- **Type errors break builds.** Pre-existing type errors in files you touched WILL cause CI failures. Fix them.
+- **It does not matter who introduced the issue.** If the error was on `main` for six months, and you touched the file, you now own it.
+- **It does not matter if you introduced it.** Same rule applies either way.
+- **"I didn't cause it" is not a valid excuse.** The only valid response to discovering an issue is fixing it.
+- **Run verification checks on your modified files** and fix everything that fails — not just the things you think you caused.
+
+If a file exceeds the max-lines limit, split it. If a function has a type error, fix the types. If an import is unused, remove it. No exceptions.
+
+## Long-Running Commands - Sub-Agents
+
+**ALWAYS delegate long-running commands** (`yarn test`, `yarn lint`, `yarn build`, `yarn type-check`, `yarn dead-code`, `yarn dep-check`, `yarn type-coverage`, `yarn lint:bash`, `yarn ls-lint`) **to a sub-agent** to free the main conversation. Pick an appropriate agent from the available plugin agents.
+
+## Linting and Formatting (oxlint + oxfmt)
+
+**Uses OXLINT, not ESLint.** Never use `eslint-disable` comments.
+
+| Command | Purpose |
+|---|---|
+| `yarn lint:fix <files>` | Lint + auto-fix (oxlint); reports anything it cannot fix |
+| `yarn fmt <files>` | Format (oxfmt) |
+| `yarn type-check:files <files>` | Type check (tsc) |
+| `yarn dead-code` | Dead code check (knip) |
+| `yarn dep-check` | Dependency boundary check (dependency-cruiser) |
+| `yarn type-coverage` | Type coverage ratchet (must not regress) |
+| `yarn lockfile-check` | Lockfile integrity (registry security) |
+| `yarn lint:bash` | Bash script lint (shellcheck) |
+| `yarn ls-lint` | File/directory naming (kebab-case enforcement) |
+| `yarn sort-pkg` | Package.json key ordering |
+| `yarn license-check` | Dependency license compliance |
+
+## Post-Change Verification
+
+After completing ALL queued messages, run on the specific files you modified:
+
+```
+yarn lint:fix <modified files>
+yarn fmt <modified files>
+yarn type-check:files <modified files>
+yarn dead-code
+yarn dep-check
+yarn type-coverage
+yarn ls-lint
+yarn sort-pkg
+```
+
+If you modified `yarn.lock`: `yarn lockfile-check`
+If you modified `yarn.lock`: `yarn license-check`
+If you modified `.sh` files: `yarn lint:bash`
+If you modified `package.json`: `npx publint`
+
+"Modified files" means only the `.ts`/`.tsx` files touched in the current task — not the whole repo.
+
+## Imports
+
+Never use relative paths except within the same folder.
+
+## Git Operations
+
+**NEVER EVER use `git commit -m`**. The project has pre-commit hooks that auto-generate commit messages.
+
+- **In normal mode**: NEVER commit, push, or offer to do either unless explicitly asked
+- **NEVER use `git add -A` or `git add .`** - stage specific files only
+- Workflow: `git status` then `git add <specific files>` then `git commit`
+
+## External Services
+
+Never run scripts or write to third-party services (AWS, GCP, MongoDB) without explicit permission.
+
+## Bugfixes and Performance
+
+- Bugfixes: Include % confidence score (0-100)
+- Performance: Include estimates (% improvement, ms saved)
+
+## Tests
+
+- Do not create/update tests unless instructed
+- If code change does not fix failing test, revert before trying new approach
+
+## Third-Party Libraries
+
+Provide evidence that imports/methods are not hallucinated (docs link, search result).
+
+**Minimum adoption thresholds — NEVER recommend or install:**
+- npm packages with **< 1,000 weekly downloads**
+- GitHub repos with **< 100 stars**
+- Forks with negligible adoption over the original (check npm downloads, not just GitHub stars)
+- Packages last published **> 12 months ago** without active maintenance
+
+**Before recommending any library, MCP server, or tool**, verify its adoption by checking npm download counts, GitHub stars, last commit date, and open issue count. If it doesn't meet the thresholds, say so and recommend the closest viable alternative — or say none exists.
+
+## No String-Based Type Discrimination
+
+NEVER use string parsing (`.includes()`, `.toLowerCase()`, regex) to determine types, statuses, or routing. Use typed const enums (`as const` objects) validated at the boundary (Zod schemas).
+
+## No Hardcoded Tool Names
+
+NEVER hardcode a tool name string when a tool class with `.toolName` exists. Import the class, use `.toolName`.
+
+## No Multi-Line Inline Code in Strings
+
+NEVER embed multi-line code inside a string argument. Extract to a file. Allowed: single-expression one-liners and `package.json` scripts.
+
+## NEVER Correct Model Strings
+
+**Your training data is STALE.** The codebase uses models NEWER than your knowledge cutoff. NEVER claim a model string is fake, replace with an older one, or suggest downgrading.
+
+## No Deferred Work
+
+**Every plan MUST be fully implemented.** No future work unless the human explicitly approved it during planning.
+
+## Agentic Execution — No Human-Time Framing
+
+**All work is executed agentically unless explicitly stated otherwise.** A human may caddy or supervise, but the execution model is agents, not developer-months.
+
+- **NEVER estimate in human time** (days, weeks, months, sprints, quarters). Do not say "6-12 months for 2-3 engineers."
+- **NEVER assume human developers** are doing the work. Do not reference "your team," "team expertise," or "learning curve."
+- **NEVER defer work based on human constraints** — cognitive load, time of day, fatigue, "it's getting late," or "we can revisit this later." These are not valid reasons.
+- **Only valid reason to split work into separate units**: conceptual separation of concerns — i.e., the work is logically distinct and benefits from being independently scoped, tested, or composed.
+- **Scope and complexity** are described by dependency depth, surface area, number of integration points, and risk — not by calendar time.
+
+## No Prose Instructions in Tool/Subagent Code
+
+**ALL decision logic MUST be in TypeScript, NEVER in prompt strings or tool response messages.** Use structured nextStep/suggestedCalls for next actions. See building-mcps.mdc for examples.
+
+## AI Guardrails — Ratchet, Never Loosen
+
+TypeScript and oxlint are configured at **maximum strictness** specifically to constrain AI-generated code. Every compiler flag and lint rule is a guardrail that prevents AI agents from taking shortcuts.
+
+**When you find a bug or weakness that stricter config would have caught:**
+
+1. **Fix the bug itself.**
+2. **Add enforcement** — enable the relevant TypeScript compiler option in `tsconfig.json` or add/tighten the oxlint rule in `.oxlintrc.json` so the class of bug is blocked permanently.
+3. **Fix any new errors** the stricter config surfaces across the codebase.
+4. **Do not break third-party libraries** — if a new flag causes errors only in library types, add a targeted override for those files rather than backing off the flag.
+
+**What "ratchet" means:** Strictness only moves in one direction. NEVER disable, weaken, or remove a TypeScript strict flag or oxlint rule. If a rule causes friction, fix the code — do not relax the rule. The only exception is a targeted `oxlint-disable-next-line` with an explanation for a specific line.
+
+**Key flags currently enforced (do not regress):**
+- `strict: true`, `noUncheckedIndexedAccess`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `isolatedModules`
+- `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, `verbatimModuleSyntax`
+- `noUncheckedSideEffectImports`, `moduleDetection: "force"`, `noImplicitOverride`
+- `allowUnreachableCode: false`, `allowUnusedLabels: false`
+- `declaration: true`, `isolatedDeclarations: true`, `erasableSyntaxOnly: true`
+- `no-explicit-any`, `no-non-null-assertion`, `ban-ts-comment`, `no-unsafe-*` family, `no-unsafe-type-assertion`
+- `no-eval`, `no-implied-eval`, `no-new-func`, `no-floating-promises`
+- `await-thenable`, `switch-exhaustiveness-check`, `no-misused-promises`, `no-confusing-void-expression`
+- `strict-boolean-expressions`, `prefer-nullish-coalescing`, `require-await`, `restrict-plus-operands`
+- `eqeqeq`, `prefer-const`, `curly`, `no-nested-ternary`, `no-await-in-loop`, `no-param-reassign`
+- `no-shadow`, `no-else-return`, `no-implicit-coercion`, `no-unneeded-ternary`, `id-length` (min 2)
+- `unicorn/catch-error-name`, `unicorn/switch-case-braces`
+- `import/no-duplicates`, `import/no-mutable-exports`
+- `typescript/consistent-generic-constructors`, `typescript/consistent-indexed-object-style`
+- `oxc/no-barrel-file` (blocks `export *` re-exports)
+- `correctness` at `error`, `suspicious` at `error`, `perf` at `error`, `pedantic` at `warn`, `--deny-warnings`
+- `promise`, `jest`, `node`, `react-perf` plugins enabled
+- `--report-unused-disable-directives` in lint scripts
+- All 4 tsconfigs type-checked in CI (`yarn type-check` checks root + extension + webview + extension tests)
+
+## Guardrail Config Files — Two Tiers
+
+### Visible guardrails (read-only)
+
+You CAN read these to understand the rules. You CANNOT modify them:
+
+`.oxlintrc.json`, `.oxfmtrc.json`, `.shellcheckrc`, `tsconfig.json` (all 4), `.editorconfig`, `.gitattributes`
+
+### Hidden guardrails (invisible)
+
+These files are invisible to you. All access attempts will be blocked.
+
+### Requesting changes
+
+All modification attempts are blocked across all tools and channels. If a task requires a config change, include the exact diff in your output and continue. Do not block or wait.
+
+## Adversarial Audits — READ-ONLY by Default
+
+When asked to do an "adversarial audit," "destroy test," "break this," or similar adversarial review:
+
+1. **NEVER delete files, remove functionality, or replace working code with error stubs**
+2. **NEVER modify source files during an audit** — audits are READ-ONLY analysis
+3. **Report findings as text** — describe bugs, vulnerabilities, and edge cases in your response
+4. **Only fix code when explicitly asked to fix**, in a SEPARATE step after the audit report
+5. **Sub-agents dispatched for audits MUST use `readonly: true`** — if the Task tool supports it
+
+"Destroy" means "find every way it can fail." It does NOT mean "delete the file." "Break this" means "identify breaking edge cases." It does NOT mean "introduce breaking changes."
+
+This rule exists because a sub-agent once interpreted "DESTROY cursor-subagent.ts" as a literal instruction, deleted the file, replaced the dispatch case with an error stub, rewrote tests to expect failure, and modified documentation to say "removed." This caused production-path damage that required manual repair.
+
+## Prohibited
+
+- `git commit -m` in any form
+- "Example" implementation files or "Plan" readme files
+- Re-exporting from files (import from source directly)
+- Suggesting dev server restarts (Next.js has hot reload)
+- Backward compat / `@deprecated` / `_unused` prefixes for same-branch code
+- Hardcoded URL paths (use dynamic discovery)
+- Asking about git commits/pushes
+- Multi-line inline code in strings - extract to a file
+- **Deleting or gutting files during adversarial audits** (report findings, don't destroy code)

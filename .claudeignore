@@ -1,0 +1,99 @@
+# ============================================================================
+# AUTO-GENERATED — DO NOT EDIT DIRECTLY
+# ============================================================================
+# Generated from .cursorignore (the single source of truth).
+# To change ignore rules, edit .cursorignore then run: yarn setup
+# ============================================================================
+
+
+# ── Build output ──────────────────────────────────────────────────────
+dist/
+build/
+.next/
+lambda-dist/
+out/
+
+# ── Test artifacts ────────────────────────────────────────────────────
+coverage/
+test-results/
+playwright-report/
+blob-report/
+**/__snapshots__/
+
+# ── Lock files ────────────────────────────────────────────────────────
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# ── Binary / generated files ─────────────────────────────────────────
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.webp
+**/*.svg
+**/*.ico
+**/*.woff
+**/*.woff2
+**/*.ttf
+**/*.eot
+**/*.pdf
+**/*.csv
+**/*.pem
+**/*.key
+**/*.pfx
+**/*.p12
+**/*.map
+**/*.log
+
+# ── Cache directories ────────────────────────────────────────────────
+.turbo/
+.cache/
+.swc/
+.playwright-cli/
+playwright/.cache/
+
+# ── Large non-source directories ─────────────────────────────────────
+# bin/ contains vendored binaries (actionlint ~5.5 MB)
+bin/
+# .yarn/ contains install-state.gz and Yarn internals
+.yarn/
+# Workflow runtime state (not source code)
+workflow-state/
+# Serena MCP cache and memories
+.serena/
+# Vercel deployment metadata
+.vercel/
+
+# ── Generated extension bundles (source is vscode-extension/src/) ────
+vscode-extension/extension.js
+vscode-extension/extension.js.map
+vscode-extension/workflow-panel-webview.js
+vscode-extension/workflow-panel-webview.js.map
+vscode-extension/workflow-panel.css
+vscode-extension/state-graph-static.json
+vscode-extension/workflow-map-static.json
+
+# ── Generated agent files (source of truth: subagents/*.ts) ──────────
+subagents/claude/agents/
+subagents/cursor/agents/
+
+AGENTS.md
+
+# ── Hidden guardrails (enforcement mechanisms — invisible to agents) ──
+# Visible guardrails (.oxlintrc.json, tsconfig.json, .editorconfig, etc.)
+# are NOT listed here — agents need to read them to write compliant code.
+# They are still write-protected (chmod 444 + chflags uchg + hooks).
+lint-plugins/
+.cursor/hooks.json
+.cursor/hooks/
+.claude/settings.json
+.claude/hooks/
+utils/cli-backends/codex-security.ts
+scripts/setup/lock-guardrails.sh
+scripts/setup/unlock-guardrails.sh
+scripts/setup/guardrail-manifest.sh
+GUARDRAILS.md
+
+# Self-protection
+.cursorignore
