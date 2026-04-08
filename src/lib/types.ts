@@ -53,3 +53,21 @@ export interface GoalEvent {
   id: string;
   label: string;
 }
+
+export interface StravaAthlete {
+  id: number;
+  username: string;
+  firstname: string;
+  lastname: string;
+  profile: string;
+  profile_medium: string;
+  city: string;
+  country: string;
+}
+
+export interface AuthSession {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number; // Unix timestamp (seconds)
+  athlete: StravaAthlete;
+}

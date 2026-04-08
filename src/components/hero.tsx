@@ -15,7 +15,7 @@ export function Hero() {
       </p>
       <div className="mt-10 flex gap-4">
         <Link
-          href="/dashboard"
+          href="/api/auth/strava"
           className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[var(--color-accent-glow)] transition-all hover:bg-[var(--color-accent-hover)] hover:shadow-xl hover:shadow-[var(--color-accent-glow)]"
         >
           <StravaIcon />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MessageCircle, CalendarDays, Settings } from "lucide-react";
+import { Home, MessageCircle, Settings } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface NavItem {
@@ -12,13 +12,23 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: "/dashboard", icon: <Home size={20} />, label: "Dashboard" },
+  { href: "/dashboard", icon: <Home size={20} />, label: "Home" },
   { href: "/chat", icon: <MessageCircle size={20} />, label: "Chat" },
-  { href: "/plan", icon: <CalendarDays size={20} />, label: "Plan" },
-  { href: "#", icon: <Settings size={20} />, label: "Settings" },
+  { href: "/settings", icon: <Settings size={20} />, label: "Settings" },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  user: { name: string };
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return (parts[0]?.[0] ?? '?').toUpperCase();
+  return ((parts[0]?.[0] ?? '') + (parts[parts.length - 1]?.[0] ?? '')).toUpperCase();
+}
+
+export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -26,7 +36,7 @@ export function Sidebar() {
       {/* Desktop sidebar */}
       <aside className="fixed top-0 left-0 z-40 hidden h-screen w-16 flex-col items-center border-r border-[var(--color-border-subtle)] bg-[var(--color-background)] py-6 md:flex">
         <Link
-          href="/"
+          href="/dashboard"
           className="mb-8 text-sm font-bold tracking-tighter text-[var(--color-text-primary)]"
         >
           F
@@ -53,7 +63,7 @@ export function Sidebar() {
         </nav>
 
         <div className="mt-auto flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-surface)] text-xs font-semibold text-[var(--color-text-secondary)]">
-          JG
+          {getInitials(user.name)}
         </div>
       </aside>
 
@@ -66,9 +76,7 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center gap-1 p-2 ${
-                isActive
-                  ? "text-[var(--color-accent)]"
-                  : "text-[var(--color-text-muted)]"
+                isActive ? "text-[var(--color-accent)]" : "text-[var(--color-text-muted)]"
               }`}
             >
               {item.icon}

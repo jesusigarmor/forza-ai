@@ -28,6 +28,9 @@ yarn-error.log*
 # env files
 .env*.local
 
+# database
+/data
+
 # vercel
 .vercel
 
@@ -39,11 +42,14 @@ next-env.d.ts
 /.cursor
 /.cursorindexingignore
 
-# greptile
-/.greptile
-
 # vscode
 /.vscode
 
 # claude
 /.claudeignore
+.claude/settings.local.json
+
+/.data
+
+
+
