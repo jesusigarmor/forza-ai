@@ -1,41 +1,37 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="flex flex-col items-center text-center">
-      <h1 className="max-w-3xl text-5xl leading-tight font-bold tracking-tight sm:text-6xl md:text-7xl">
-        Your Training,{" "}
-        <span className="bg-gradient-to-r from-[var(--color-accent)] to-orange-400 bg-clip-text text-transparent">
-          Understood
-        </span>
-      </h1>
-      <p className="mt-6 max-w-xl text-lg text-[var(--color-text-secondary)]">
-        Connect your Strava account and get AI-powered insights about your
-        athletic performance.
-      </p>
-      <div className="mt-10 flex gap-4">
-        <Link
-          href="/api/auth/strava"
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[var(--color-accent-glow)] transition-all hover:bg-[var(--color-accent-hover)] hover:shadow-xl hover:shadow-[var(--color-accent-glow)]"
-        >
-          <StravaIcon />
-          Connect with Strava
-        </Link>
-        <a
-          href="#features"
-          className="inline-flex items-center rounded-lg border border-[var(--color-border)] px-6 py-3 text-sm font-medium transition-colors hover:bg-[var(--color-surface)]"
-        >
-          Learn More
-        </a>
+    <section className="min-h-screen flex items-center px-8 lg:px-16 py-16">
+      <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-center">
+
+        {/* Left — headline + CTA */}
+        <div className="flex flex-col gap-14">
+          <h1 className="text-[clamp(3rem,12vw,9rem)] font-black leading-[0.88] tracking-[-0.04em]">
+            be better.
+          </h1>
+          <Link
+            href="/login"
+            className="self-start bg-[#F5F7FA] text-[#0A0D0F] text-[13px] font-semibold px-7 py-3.5 rounded-[2px] hover:bg-white transition-colors duration-200"
+          >
+            Login
+          </Link>
+        </div>
+
+        {/* Right — hero image */}
+        <div className="order-last">
+          <Image
+            src="/mdvp.jpg"
+            alt="Cyclist carrying bike through muddy terrain"
+            width={800}
+            height={1067}
+            className="w-full h-auto rounded-md"
+            priority
+          />
+        </div>
+
       </div>
     </section>
-  );
-}
-
-function StravaIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
-    </svg>
   );
 }

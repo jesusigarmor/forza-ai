@@ -39,7 +39,7 @@ export function Sidebar({ user }: SidebarProps) {
           href="/dashboard"
           className="mb-8 text-sm font-bold tracking-tighter text-[var(--color-text-primary)]"
         >
-          F
+          S
         </Link>
 
         <nav className="flex flex-1 flex-col items-center gap-2">

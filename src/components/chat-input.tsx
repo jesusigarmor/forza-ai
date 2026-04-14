@@ -27,27 +27,25 @@ export function ChatInput({ value, onChange, onSubmit, disabled }: ChatInputProp
   }
 
   return (
-    <div className="border-t border-[var(--color-border-subtle)] bg-[var(--color-background)] px-4 py-4 md:px-6">
-      <div className="mx-auto flex max-w-3xl items-center gap-3">
-        <div className="flex flex-1 items-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 focus-within:border-[var(--color-accent)]/50 focus-within:ring-1 focus-within:ring-[var(--color-accent)]/20">
-          <input
-            ref={inputRef}
-            type="text"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={disabled}
-            placeholder="Ask about your training…"
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--color-text-muted)] disabled:opacity-50"
-          />
-        </div>
+    <div className="shrink-0 px-4 pb-6 pt-2 md:px-6">
+      <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-2xl border border-white/[0.08] bg-[#0F1214]/90 pl-5 pr-2 py-2 shadow-2xl backdrop-blur-xl transition-colors focus-within:border-white/[0.15]">
+        <input
+          ref={inputRef}
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={disabled}
+          placeholder="Ask about your training…"
+          className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-[var(--color-text-muted)] disabled:opacity-50"
+        />
         <button
           type="button"
           onClick={handleClick}
           disabled={disabled || !value.trim()}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-accent)] text-white transition-all hover:bg-[var(--color-accent-hover)] hover:shadow-lg hover:shadow-[var(--color-accent-glow)] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-accent)] text-[#0A0D0F] transition-all hover:bg-[var(--color-accent-hover)] disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          <SendHorizonal size={18} />
+          <SendHorizonal size={16} />
         </button>
       </div>
     </div>

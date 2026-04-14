@@ -5,9 +5,8 @@ import "@/app/globals.css";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ForzaAI — Your Training, Understood",
-  description:
-    "Connect your Strava account and get AI-powered insights about your athletic performance.",
+  title: "Stride",
+  description: "AI-powered training insights for endurance athletes.",
 };
 
 export default function RootLayout({

@@ -1,15 +1,18 @@
 import { redirect } from 'next/navigation';
-import { Sidebar } from '@/components/sidebar';
+import { FloatingNav } from '@/components/floating-nav';
 import { getSession } from '@/lib/auth';
+import { getStravaConnectionByUserId } from '@/lib/db';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getSession();
   if (!user) redirect('/login');
 
+  const connection = await getStravaConnectionByUserId(user.id);
+
   return (
     <div className="min-h-screen">
-      <Sidebar user={{ name: user.name }} />
-      <main className="pb-20 md:pl-16 md:pb-0">{children}</main>
+      <FloatingNav stravaConnected={!!connection} />
+      <main>{children}</main>
     </div>
   );
 }

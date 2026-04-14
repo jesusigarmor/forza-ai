@@ -37,7 +37,7 @@ export default function LoginPage() {
     <div className="mx-auto w-full max-w-sm px-6">
       <div className="mb-8 text-center">
         <p className="text-2xl font-bold tracking-tighter text-[var(--color-text-primary)]">
-          Forza<span className="text-[var(--color-accent)]">AI</span>
+          Stride
         </p>
         <p className="mt-2 text-sm text-[var(--color-text-muted)]">Sign in to your account</p>
       </div>
@@ -78,7 +78,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
+          className="w-full rounded-lg bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-[#0A0D0F] transition hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>

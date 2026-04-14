@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Plus } from "lucide-react";
 import { MessageBubble } from "@/components/message-bubble";
 import { ChatInput } from "@/components/chat-input";
 import { TypingIndicator } from "@/components/typing-indicator";
@@ -35,16 +34,13 @@ export default function ChatPage() {
     };
 
     const assistantId = makeId();
-    const assistantMsg: ChatMessage = {
-      id: assistantId,
-      role: "assistant",
-      content: "",
-      timestamp: new Date().toISOString(),
-    };
 
-    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    // Only add the user message — assistant bubble is added on first chunk
+    setMessages((prev) => [...prev, userMsg]);
     setIsStreaming(true);
     setWaitingForFirst(true);
+
+    let firstChunk = true;
 
     try {
       const res = await fetch("/api/chat", {
@@ -62,58 +58,53 @@ export default function ChatPage() {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value);
-        setWaitingForFirst(false);
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantId ? { ...m, content: m.content + chunk } : m
-          )
-        );
+
+        if (firstChunk) {
+          firstChunk = false;
+          setWaitingForFirst(false);
+          // Insert the assistant bubble for the first time with actual content
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: assistantId,
+              role: "assistant",
+              content: chunk,
+              timestamp: new Date().toISOString(),
+            },
+          ]);
+        } else {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId ? { ...m, content: m.content + chunk } : m
+            )
+          );
+        }
       }
     } catch {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantId
-            ? { ...m, content: "Sorry, something went wrong. Please try again." }
-            : m
-        )
-      );
+      setWaitingForFirst(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantId,
+          role: "assistant",
+          content: "Sorry, something went wrong. Please try again.",
+          timestamp: new Date().toISOString(),
+        },
+      ]);
     } finally {
       setIsStreaming(false);
       setWaitingForFirst(false);
     }
   }
 
-  function handleNewChat() {
-    if (isStreaming) return;
-    setMessages([]);
-  }
-
   return (
-    <div className="flex h-screen flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--color-border-subtle)] px-6 py-4">
-        <h1 className="text-lg font-semibold">Chat with ForzaAI</h1>
-        <button
-          type="button"
-          onClick={handleNewChat}
-          disabled={isStreaming}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[var(--color-surface)] disabled:opacity-40"
-        >
-          <Plus size={14} />
-          New Chat
-        </button>
-      </div>
-
+    <div className="flex h-dvh flex-col overflow-hidden animate-page-enter">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 md:px-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6">
+        <div className="mx-auto max-w-3xl pt-6 pb-2">
+          <h1 className="text-2xl font-semibold">ask.</h1>
+        </div>
         <div className="mx-auto flex max-w-3xl flex-col gap-4">
-          {messages.length === 0 && (
-            <div className="mt-16 text-center text-sm text-[var(--color-text-muted)]">
-              <p className="text-base font-medium text-[var(--color-text-secondary)]">Ask about your training</p>
-              <p className="mt-1">Try: &ldquo;How many km did I run last week?&rdquo;</p>
-            </div>
-          )}
-
           {messages.map((message) => {
             const isLast = message.id === messages[messages.length - 1]?.id;
             const streaming = isLast && message.role === "assistant" && isStreaming && !waitingForFirst;

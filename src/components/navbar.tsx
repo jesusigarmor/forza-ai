@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export function Navbar() {
@@ -18,28 +19,27 @@ export function Navbar() {
     <nav
       className={`fixed top-0 right-0 left-0 z-50 transition-colors duration-200 ${
         scrolled
-          ? "border-b border-[var(--color-border-subtle)] bg-[var(--color-background)]/80 backdrop-blur-xl"
-          : "bg-transparent"
+          ? "border-b border-gray-100 bg-white/90 backdrop-blur-xl"
+          : "bg-white"
       }`}
     >
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-xl font-bold tracking-tight">
-          ForzaAI
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/Kanji_for_chikara.jpg"
+            alt="Chikara"
+            width={28}
+            height={28}
+            className="rounded-sm"
+          />
+          <span className="text-xl font-bold tracking-tight text-gray-900">ForzaAI</span>
         </Link>
-        <div className="flex items-center gap-6">
-          <a
-            href="#features"
-            className="text-sm text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
-          >
-            Features
-          </a>
-          <Link
-            href="/dashboard"
-            className="rounded-lg border border-[var(--color-border)] bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--color-surface)]"
-          >
-            Sign In
-          </Link>
-        </div>
+        <Link
+          href="/dashboard"
+          className="rounded-lg border border-gray-200 bg-transparent px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+        >
+          Sign In
+        </Link>
       </div>
     </nav>
   );

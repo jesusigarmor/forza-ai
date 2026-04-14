@@ -1,0 +1,804 @@
+{
+  "id": "4c68ec02-98fc-45c8-8ad8-cf98d82979f5",
+  "prevId": "4a6a5cd5-6b62-453a-adb6-525924174115",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.activities": {
+      "name": "activities",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "strava_id": {
+          "name": "strava_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sport_type": {
+          "name": "sport_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "distance_km": {
+          "name": "distance_km",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "moving_time": {
+          "name": "moving_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "elapsed_time": {
+          "name": "elapsed_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "elevation_gain": {
+          "name": "elevation_gain",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avg_heartrate": {
+          "name": "avg_heartrate",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "max_heartrate": {
+          "name": "max_heartrate",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avg_watts": {
+          "name": "avg_watts",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "weighted_avg_watts": {
+          "name": "weighted_avg_watts",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kilojoules": {
+          "name": "kilojoules",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avg_cadence": {
+          "name": "avg_cadence",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "calories": {
+          "name": "calories",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "suffer_score": {
+          "name": "suffer_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pr_count": {
+          "name": "pr_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "max_speed": {
+          "name": "max_speed",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "average_speed": {
+          "name": "average_speed",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "elev_high": {
+          "name": "elev_high",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "elev_low": {
+          "name": "elev_low",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "achievement_count": {
+          "name": "achievement_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "workout_type": {
+          "name": "workout_type",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trainer": {
+          "name": "trainer",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "average_temp": {
+          "name": "average_temp",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "perceived_exertion": {
+          "name": "perceived_exertion",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "device_name": {
+          "name": "device_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "detail_fetched": {
+          "name": "detail_fetched",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "EXTRACT(EPOCH FROM NOW())::INTEGER"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "EXTRACT(EPOCH FROM NOW())::INTEGER"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "activities_user_id_app_users_id_fk": {
+          "name": "activities_user_id_app_users_id_fk",
+          "tableFrom": "activities",
+          "tableTo": "app_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "activities_strava_id_unique": {
+          "name": "activities_strava_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "strava_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.activity_best_efforts": {
+      "name": "activity_best_efforts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "strava_activity_id": {
+          "name": "strava_activity_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "elapsed_time": {
+          "name": "elapsed_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "moving_time": {
+          "name": "moving_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "distance": {
+          "name": "distance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pr_rank": {
+          "name": "pr_rank",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "activity_best_efforts_user_id_app_users_id_fk": {
+          "name": "activity_best_efforts_user_id_app_users_id_fk",
+          "tableFrom": "activity_best_efforts",
+          "tableTo": "app_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.app_users": {
+      "name": "app_users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sport_preference": {
+          "name": "sport_preference",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "age": {
+          "name": "age",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "weight_kg": {
+          "name": "weight_kg",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "height_cm": {
+          "name": "height_cm",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "EXTRACT(EPOCH FROM NOW())::INTEGER"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "EXTRACT(EPOCH FROM NOW())::INTEGER"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "app_users_email_unique": {
+          "name": "app_users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.athlete_stats": {
+      "name": "athlete_stats",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ytd_run_distance": {
+          "name": "ytd_run_distance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_run_count": {
+          "name": "ytd_run_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_run_time": {
+          "name": "ytd_run_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_run_elevation": {
+          "name": "ytd_run_elevation",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_ride_distance": {
+          "name": "ytd_ride_distance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_ride_count": {
+          "name": "ytd_ride_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_ride_time": {
+          "name": "ytd_ride_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_ride_elevation": {
+          "name": "ytd_ride_elevation",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_swim_distance": {
+          "name": "ytd_swim_distance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_swim_count": {
+          "name": "ytd_swim_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ytd_swim_time": {
+          "name": "ytd_swim_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_run_distance": {
+          "name": "all_run_distance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_run_count": {
+          "name": "all_run_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_run_time": {
+          "name": "all_run_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_run_elevation": {
+          "name": "all_run_elevation",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_ride_distance": {
+          "name": "all_ride_distance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_ride_count": {
+          "name": "all_ride_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_ride_time": {
+          "name": "all_ride_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_ride_elevation": {
+          "name": "all_ride_elevation",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_swim_distance": {
+          "name": "all_swim_distance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_swim_count": {
+          "name": "all_swim_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "all_swim_time": {
+          "name": "all_swim_time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "biggest_ride_distance": {
+          "name": "biggest_ride_distance",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "biggest_climb_elevation": {
+          "name": "biggest_climb_elevation",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "EXTRACT(EPOCH FROM NOW())::INTEGER"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "athlete_stats_user_id_app_users_id_fk": {
+          "name": "athlete_stats_user_id_app_users_id_fk",
+          "tableFrom": "athlete_stats",
+          "tableTo": "app_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "athlete_stats_user_id_unique": {
+          "name": "athlete_stats_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.athlete_zones": {
+      "name": "athlete_zones",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hr_zones": {
+          "name": "hr_zones",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "power_zones": {
+          "name": "power_zones",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "EXTRACT(EPOCH FROM NOW())::INTEGER"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "athlete_zones_user_id_app_users_id_fk": {
+          "name": "athlete_zones_user_id_app_users_id_fk",
+          "tableFrom": "athlete_zones",
+          "tableTo": "app_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "athlete_zones_user_id_unique": {
+          "name": "athlete_zones_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.strava_connections": {
+      "name": "strava_connections",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "strava_id": {
+          "name": "strava_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "firstname": {
+          "name": "firstname",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lastname": {
+          "name": "lastname",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "profile": {
+          "name": "profile",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "profile_medium": {
+          "name": "profile_medium",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "EXTRACT(EPOCH FROM NOW())::INTEGER"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "EXTRACT(EPOCH FROM NOW())::INTEGER"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "strava_connections_user_id_app_users_id_fk": {
+          "name": "strava_connections_user_id_app_users_id_fk",
+          "tableFrom": "strava_connections",
+          "tableTo": "app_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "strava_connections_strava_id_unique": {
+          "name": "strava_connections_strava_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "strava_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
