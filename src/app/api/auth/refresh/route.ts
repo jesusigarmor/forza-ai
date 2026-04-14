@@ -7,14 +7,14 @@ export async function GET(request: NextRequest) {
   const user = await getSession();
   if (!user) return NextResponse.redirect(new URL('/login', request.url));
 
-  const connection = getStravaConnectionByUserId(user.id);
+  const connection = await getStravaConnectionByUserId(user.id);
   if (!connection) return NextResponse.redirect(new URL('/dashboard', request.url));
 
   try {
     const { access_token, refresh_token, expires_at } = await refreshAccessToken(
       connection.refresh_token
     );
-    updateStravaTokens(connection.strava_id, {
+    await updateStravaTokens(connection.strava_id, {
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: expires_at,

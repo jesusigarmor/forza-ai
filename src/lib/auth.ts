@@ -20,7 +20,7 @@ export async function getSession(): Promise<AppUser | null> {
     return null;
   }
 
-  return getUserById(parsed.userId);
+  return await getUserById(parsed.userId);
 }
 
 export async function setSessionCookie(userId: number) {

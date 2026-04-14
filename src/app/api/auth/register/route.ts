@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { runMigrations, createUser, getUserByEmail } from '@/lib/db';
+import { createUser, getUserByEmail } from '@/lib/db';
 import { hashPassword } from '@/lib/passwords';
 import { setSessionCookie } from '@/lib/auth';
-
-runMigrations();
 
 export async function POST(request: NextRequest) {
   const body = await request.json() as {
@@ -26,12 +24,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
   }
 
-  if (getUserByEmail(email)) {
+  if (await getUserByEmail(email)) {
     return NextResponse.json({ error: 'An account with this email already exists' }, { status: 409 });
   }
 
   const password_hash = await hashPassword(password);
-  const user = createUser({ name, email, password_hash, sport_preference, age, weight_kg, height_cm });
+  const user = await createUser({ name, email, password_hash, sport_preference, age, weight_kg, height_cm });
 
   await setSessionCookie(user.id);
   return NextResponse.json({ ok: true });

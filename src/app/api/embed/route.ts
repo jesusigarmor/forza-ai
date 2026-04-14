@@ -8,7 +8,7 @@ export async function POST() {
   const user = await getSession();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const connection = getStravaConnectionByUserId(user.id);
+  const connection = await getStravaConnectionByUserId(user.id);
   if (!connection) return NextResponse.json({ error: 'Strava not connected' }, { status: 400 });
 
   const rawActivities = await fetchAllActivities(connection.access_token);

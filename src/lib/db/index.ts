@@ -1,5 +1,4 @@
 export { db } from './client';
-export { runMigrations } from './migrate';
 export { createUser, getUserByEmail, getUserById } from './app-users';
 export type { AppUser } from './app-users';
 export {

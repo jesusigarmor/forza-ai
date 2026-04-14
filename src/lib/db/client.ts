@@ -1,9 +1,6 @@
-import Database from 'better-sqlite3';
-import fs from 'fs';
-import path from 'path';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import * as schema from './schema';
 
-const dbPath = process.env.DATABASE_PATH ?? './data/forza.db';
-fs.mkdirSync(path.dirname(path.resolve(dbPath)), { recursive: true });
-
-export const db = new Database(path.resolve(dbPath));
-db.pragma('journal_mode = WAL');
+const sql = neon(process.env.DATABASE_URL!);
+export const db = drizzle(sql, { schema });

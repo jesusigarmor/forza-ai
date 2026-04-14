@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 import { exchangeCodeForTokens } from '@/lib/strava';
-import { runMigrations, upsertStravaConnection } from '@/lib/db';
+import { upsertStravaConnection } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-
-runMigrations();
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -51,7 +49,7 @@ export async function GET(request: NextRequest) {
     const { access_token, refresh_token, expires_at, athlete } =
       await exchangeCodeForTokens(code!);
 
-    upsertStravaConnection(user.id, athlete, {
+    await upsertStravaConnection(user.id, athlete, {
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: expires_at,

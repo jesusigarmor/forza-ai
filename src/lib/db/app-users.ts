@@ -1,17 +1,8 @@
 import { db } from './client';
+import { appUsers } from './schema';
+import { eq } from 'drizzle-orm';
 
-export interface AppUser {
-  id: number;
-  name: string;
-  email: string;
-  password_hash: string;
-  sport_preference: string | null;
-  age: number | null;
-  weight_kg: number | null;
-  height_cm: number | null;
-  created_at: number;
-  updated_at: number;
-}
+export type AppUser = typeof appUsers.$inferSelect;
 
 interface CreateUserData {
   name: string;
@@ -23,28 +14,25 @@ interface CreateUserData {
   height_cm?: number;
 }
 
-export function createUser(data: CreateUserData): AppUser {
-  return db
-    .prepare(
-      `INSERT INTO app_users (name, email, password_hash, sport_preference, age, weight_kg, height_cm)
-       VALUES (@name, @email, @passwordHash, @sportPreference, @age, @weightKg, @heightCm)
-       RETURNING *`
-    )
-    .get({
-      name: data.name,
-      email: data.email,
-      passwordHash: data.password_hash,
-      sportPreference: data.sport_preference ?? null,
-      age: data.age ?? null,
-      weightKg: data.weight_kg ?? null,
-      heightCm: data.height_cm ?? null,
-    }) as AppUser;
+export async function createUser(data: CreateUserData): Promise<AppUser> {
+  const rows = await db.insert(appUsers).values({
+    name:             data.name,
+    email:            data.email,
+    password_hash:    data.password_hash,
+    sport_preference: data.sport_preference ?? null,
+    age:              data.age ?? null,
+    weight_kg:        data.weight_kg ?? null,
+    height_cm:        data.height_cm ?? null,
+  }).returning();
+  return rows[0]!;
 }
 
-export function getUserByEmail(email: string): AppUser | null {
-  return (db.prepare('SELECT * FROM app_users WHERE email = ?').get(email) as AppUser) ?? null;
+export async function getUserByEmail(email: string): Promise<AppUser | null> {
+  const rows = await db.select().from(appUsers).where(eq(appUsers.email, email)).limit(1);
+  return rows[0] ?? null;
 }
 
-export function getUserById(id: number): AppUser | null {
-  return (db.prepare('SELECT * FROM app_users WHERE id = ?').get(id) as AppUser) ?? null;
+export async function getUserById(id: number): Promise<AppUser | null> {
+  const rows = await db.select().from(appUsers).where(eq(appUsers.id, id)).limit(1);
+  return rows[0] ?? null;
 }

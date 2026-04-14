@@ -50,7 +50,7 @@ export default async function DashboardPage({
   const user = await getSession();
   if (!user) redirect("/login");
 
-  const connection = getStravaConnectionByUserId(user.id);
+  const connection = await getStravaConnectionByUserId(user.id);
   const { connected } = await searchParams;
 
   // No Strava connection — show connect card

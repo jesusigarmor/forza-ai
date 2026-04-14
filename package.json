@@ -6,12 +6,15 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "check:services": "node scripts/check-services.mjs"
+    "check:services": "node scripts/check-services.mjs",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.8.0",
     "chromadb": "^3.4.3",
+    "drizzle-orm": "^0.45.2",
     "next": "^16.1.6",
     "ollama": "^0.6.3",
     "react": "^19.2.4",
@@ -20,10 +23,11 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
     "@types/bcryptjs": "^3.0.0",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.3.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
     "lucide-react": "^0.577.0",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.1",

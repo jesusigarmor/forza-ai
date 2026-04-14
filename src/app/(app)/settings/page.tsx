@@ -25,7 +25,7 @@ export default async function SettingsPage({
   const user = await getSession();
   if (!user) redirect("/login");
 
-  const stravaConn = getStravaConnectionByUserId(user.id); // synchronous (better-sqlite3)
+  const stravaConn = await getStravaConnectionByUserId(user.id);
   const { error } = await searchParams;
   const errorMsg = error ? ERROR_MESSAGES[error] : null;
 
